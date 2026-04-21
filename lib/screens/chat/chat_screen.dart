@@ -74,6 +74,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
+  bool _isSending = false; 
   final List<ChatMessage>   _messages   = [];
   final TextEditingController _textCtrl = TextEditingController();
   // reverse: true — أحدث رسالة في الأسفل تلقائياً
