@@ -25,10 +25,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       final res = await ApiService.get('/profile');
       if (res['success'] == true) {
-        setState(() => _profile = res['employee']);
+        if (mounted) setState(() => _profile = res['employee']);
       }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -93,7 +93,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         physics: const AlwaysScrollableScrollPhysics(),
         child: Column(
           children: [
-            // Header
+            // ── Header
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(24),
@@ -138,7 +138,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
 
-            // Balance Card
+            // ── Balance Card
             Padding(
               padding: const EdgeInsets.all(16),
               child: Card(
@@ -184,7 +184,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
 
-            // Info Card
+            // ── Info Card
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Card(
@@ -209,7 +209,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
 
-            // Bank Card
+            // ── Bank Card (فقط إذا توجد بيانات بنكية)
             if (_profile?['bank'] != null)
               Padding(
                 padding: const EdgeInsets.all(16),
@@ -229,45 +229,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             _profile!['bank']['account_name'] ?? '—'),
                         _buildInfoRow(Icons.credit_card, 'رقم الحساب',
                             _profile!['bank']['bank_account'] ?? '—'),
+                        const Divider(),
+                        SizedBox(
+                          width: double.infinity,
+                          child: TextButton.icon(
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    BankScreen(bankData: _profile!['bank']),
+                              ),
+                            ),
+                            icon: Icon(
+                              _profile!['bank']['is_locked'] == true
+                                  ? Icons.lock
+                                  : Icons.edit,
+                              color: _profile!['bank']['is_locked'] == true
+                                  ? Colors.grey
+                                  : const Color(0xFF1e3a5f),
+                            ),
+                            label: Text(
+                              _profile!['bank']['is_locked'] == true
+                                  ? 'البنك مقفول'
+                                  : 'تعديل بيانات البنك',
+                              style: GoogleFonts.cairo(
+                                color: _profile!['bank']['is_locked'] == true
+                                    ? Colors.grey
+                                    : const Color(0xFF1e3a5f),
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ),
               ),
 
-              // في نهاية Bank Card بعد آخر _buildInfoRow
-const Divider(),
-SizedBox(
-  width: double.infinity,
-  child: TextButton.icon(
-    onPressed: () => Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => BankScreen(bankData: _profile!['bank']),
-      ),
-    ),
-    icon: Icon(
-      _profile!['bank']['is_locked'] == true
-          ? Icons.lock
-          : Icons.edit,
-      color: _profile!['bank']['is_locked'] == true
-          ? Colors.grey
-          : const Color(0xFF1e3a5f),
-    ),
-    label: Text(
-      _profile!['bank']['is_locked'] == true
-          ? 'البنك مقفول'
-          : 'تعديل بيانات البنك',
-      style: GoogleFonts.cairo(
-        color: _profile!['bank']['is_locked'] == true
-            ? Colors.grey
-            : const Color(0xFF1e3a5f),
-      ),
-    ),
-  ),
-),
-
-            // Logout Button
+            // ── Logout Button
             Padding(
               padding: const EdgeInsets.all(16),
               child: SizedBox(

@@ -24,12 +24,12 @@ class _SalaryScreenState extends State<SalaryScreen> {
     try {
       final res = await ApiService.get('/salary');
       if (res['success'] == true) {
-        setState(() => _salaries = res['data']);
+        if (mounted) setState(() => _salaries = res['data']);
       }
     } catch (e) {
       // handle error
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 

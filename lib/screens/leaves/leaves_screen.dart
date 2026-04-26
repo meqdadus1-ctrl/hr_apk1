@@ -24,13 +24,13 @@ class _LeavesScreenState extends State<LeavesScreen> {
     try {
       final res = await ApiService.get('/leaves');
       if (res['success'] == true) {
-        setState(() {
+        if (mounted) setState(() {
           _leaves = res['data'];
           _leaveTypes = res['leave_types'] ?? [];
         });
       }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 

@@ -23,10 +23,10 @@ class _LoansScreenState extends State<LoansScreen> {
     try {
       final res = await ApiService.get('/loans');
       if (res['success'] == true) {
-        setState(() => _loans = res['data']);
+        if (mounted) setState(() => _loans = res['data']);
       }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 

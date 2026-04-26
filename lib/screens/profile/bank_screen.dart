@@ -28,7 +28,8 @@ class _BankScreenState extends State<BankScreen> {
   void initState() {
     super.initState();
     if (widget.bankData != null) {
-      _accountNameController.text = widget.bankData!['account_name'] ?? '';
+      _selectedBankType    = widget.bankData!['bank_type'];
+      _accountNameController.text   = widget.bankData!['account_name'] ?? '';
       _accountNumberController.text = widget.bankData!['bank_account'] ?? '';
     }
   }

@@ -74,7 +74,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
-  bool _isSending = false; 
+  // bool _isSending = false; // removed — use _sending instead
   final List<ChatMessage>   _messages   = [];
   final TextEditingController _textCtrl = TextEditingController();
   // reverse: true — أحدث رسالة في الأسفل تلقائياً
@@ -778,7 +778,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             _CircleBtn(
               icon: Icons.attach_file_rounded,
               color: _kPrimary,
-              onTap: _isSending ? null : _showAttachSheet,
+              onTap: _sending ? null : _showAttachSheet,
             ),
             const SizedBox(width: 8),
 

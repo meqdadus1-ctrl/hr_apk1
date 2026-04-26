@@ -23,10 +23,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     try {
       final res = await ApiService.get('/notifications');
       if (res['success'] == true) {
-        setState(() => _notifications = res['data']);
+        if (mounted) setState(() => _notifications = res['data']);
       }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 

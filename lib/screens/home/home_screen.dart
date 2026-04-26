@@ -8,6 +8,7 @@ import '../leaves/leaves_screen.dart';
 import '../profile/profile_screen.dart';
 import '../notifications/notifications_screen.dart';
 import '../chat/chat_screen.dart';
+import '../attendance/attendance_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _screens = [
     const _DashboardTab(),
+    const AttendanceScreen(),
     const SalaryScreen(),
     const LoansScreen(),
     const LeavesScreen(),
@@ -33,13 +35,13 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Text(
           _currentIndex == 0 ? 'الرئيسية' :
-          _currentIndex == 1 ? 'الرواتب' :
-          _currentIndex == 2 ? 'السلف' :
-          _currentIndex == 3 ? 'الإجازات' : 'الملف الشخصي',
+          _currentIndex == 1 ? 'الحضور' :
+          _currentIndex == 2 ? 'الرواتب' :
+          _currentIndex == 3 ? 'السلف' :
+          _currentIndex == 4 ? 'الإجازات' : 'الملف الشخصي',
           style: GoogleFonts.cairo(fontWeight: FontWeight.bold),
         ),
         actions: [
-          // زر المحادثة
           IconButton(
             icon: const Icon(Icons.chat_bubble_outline),
             tooltip: 'محادثة الإدارة',
@@ -48,7 +50,6 @@ class _HomeScreenState extends State<HomeScreen> {
               MaterialPageRoute(builder: (_) => const ChatScreen()),
             ),
           ),
-          // زر الإشعارات
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () => Navigator.push(
@@ -58,7 +59,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: _screens[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (i) => setState(() => _currentIndex = i),
@@ -67,6 +71,10 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: Icon(Icons.home_outlined),
               selectedIcon: Icon(Icons.home),
               label: 'الرئيسية'),
+          NavigationDestination(
+              icon: Icon(Icons.fingerprint_outlined),
+              selectedIcon: Icon(Icons.fingerprint),
+              label: 'الحضور'),
           NavigationDestination(
               icon: Icon(Icons.payments_outlined),
               selectedIcon: Icon(Icons.payments),
@@ -80,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
               selectedIcon: Icon(Icons.beach_access),
               label: 'الإجازات'),
           NavigationDestination(
-              icon: Icon(Icons.person_outlined),
+              icon: Icon(Icons.person_outline),
               selectedIcon: Icon(Icons.person),
               label: 'حسابي'),
         ],
@@ -90,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 // =====================================================
-//  Dashboard Tab — بيانات حقيقية من الـ API
+//  Dashboard Tab
 // =====================================================
 class _DashboardTab extends StatefulWidget {
   const _DashboardTab();
@@ -114,7 +122,6 @@ class _DashboardTabState extends State<_DashboardTab> {
 
   Future<void> _load() async {
     try {
-      // تحميل البيانات بالتوازي
       final results = await Future.wait([
         ApiService.get('/profile'),
         ApiService.get('/salary'),
@@ -124,10 +131,10 @@ class _DashboardTabState extends State<_DashboardTab> {
 
       if (!mounted) return;
 
-      final profileRes  = results[0];
-      final salaryRes   = results[1];
-      final loanRes     = results[2];
-      final notifRes    = results[3];
+      final profileRes = results[0];
+      final salaryRes  = results[1];
+      final loanRes    = results[2];
+      final notifRes   = results[3];
 
       setState(() {
         if (profileRes['success'] == true) {
@@ -140,9 +147,7 @@ class _DashboardTabState extends State<_DashboardTab> {
         if (loanRes['success'] == true) {
           final loans = loanRes['data'] as List;
           try {
-            _activeLoan = loans.firstWhere(
-              (l) => l['status'] == 'active',
-            );
+            _activeLoan = loans.firstWhere((l) => l['status'] == 'active');
           } catch (_) {}
         }
         if (notifRes['success'] == true) {
@@ -169,23 +174,16 @@ class _DashboardTabState extends State<_DashboardTab> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── بطاقة الترحيب
             _buildWelcomeCard(),
             const SizedBox(height: 16),
-
-            // ── بطاقات الملخص
             _buildSummaryRow(),
             const SizedBox(height: 24),
-
-            // ── الخدمات السريعة
             Text('الخدمات السريعة',
                 style: GoogleFonts.cairo(
                     fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             _buildQuickActions(),
             const SizedBox(height: 24),
-
-            // ── آخر راتب
             if (_lastSalary != null) ...[
               Text('آخر راتب',
                   style: GoogleFonts.cairo(
@@ -194,8 +192,6 @@ class _DashboardTabState extends State<_DashboardTab> {
               _buildLastSalaryCard(),
               const SizedBox(height: 16),
             ],
-
-            // ── السلفة النشطة
             if (_activeLoan != null) ...[
               Text('السلفة الحالية',
                   style: GoogleFonts.cairo(
@@ -256,7 +252,6 @@ class _DashboardTabState extends State<_DashboardTab> {
               ],
             ),
           ),
-          // زر التنبيهات
           if (_unreadNotifications > 0)
             Stack(
               children: [
@@ -441,7 +436,8 @@ class _DashboardTabState extends State<_DashboardTab> {
                 Text('المدفوع: ${_activeLoan!['amount_paid']} ₪',
                     style: GoogleFonts.cairo(fontSize: 12, color: Colors.grey)),
                 Text('المتبقي: ${_activeLoan!['remaining_amount']} ₪',
-                    style: GoogleFonts.cairo(fontSize: 12, color: Colors.orange)),
+                    style: GoogleFonts.cairo(
+                        fontSize: 12, color: Colors.orange)),
               ],
             ),
           ],
@@ -479,8 +475,7 @@ class _SummaryCard extends StatelessWidget {
           Icon(icon, color: color, size: 22),
           const SizedBox(height: 6),
           Text(title,
-              style: GoogleFonts.cairo(
-                  color: Colors.grey, fontSize: 10)),
+              style: GoogleFonts.cairo(color: Colors.grey, fontSize: 10)),
           const SizedBox(height: 2),
           Text(value,
               style: GoogleFonts.cairo(
